@@ -2,29 +2,36 @@ package pokeapi
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 )
 
-func RequestAndResponse(url string, client *http.Client) (pokeAPIResponse, error) {
+func Request(url string, client *http.Client) ([]byte, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return pokeAPIResponse{}, err
+		return nil, err
 	}
 
 	res, err := client.Do(req)
 
 	if err != nil {
-		return pokeAPIResponse{}, err
+		return nil, err
 	}
 	defer res.Body.Close()
 
-	var response pokeAPIResponse
-
-	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&response)
+	data, err := io.ReadAll(res.Body)
 	if err != nil {
-		return pokeAPIResponse{}, err
+		return nil, err
+	}
+	return data, nil
+}
+
+func Decipher(data []byte) (PokeAPIResponse, error) {
+	var response PokeAPIResponse
+
+	err := json.Unmarshal(data, &response)
+	if err != nil {
+		return PokeAPIResponse{}, err
 	}
 	return response, nil
-
 }

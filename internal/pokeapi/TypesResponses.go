@@ -1,6 +1,6 @@
 package pokeapi
 
-type pokeAPIResponse struct {
+type PokeAPIResponse struct {
 	Count       int            `json:"count"`
 	NextURL     string         `json:"next"`
 	PreviousURL string         `json:"previous"`

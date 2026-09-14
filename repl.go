@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/AirflowSteve/pokedex/internal/pokeapi"
+	"github.com/AirflowSteve/pokedex/internal/pokecache"
 )
 
 const defaultLocationsURL string = "https://pokeapi.co/api/v2/location-area/"
@@ -23,6 +24,7 @@ type config struct {
 	Previous        string
 	Next            string
 	PokeClient      http.Client
+	cache           pokecache.Cache
 }
 
 func startRepl(conf *config) {
@@ -75,7 +77,28 @@ func commandExit(conf *config) error {
 
 func commandMap(conf *config) error {
 	pokeAPIMapURL := conf.Next
-	response, err := pokeapi.RequestAndResponse(pokeAPIMapURL, &conf.PokeClient)
+
+	pokeCache := conf.cache
+	val, ok := pokeCache.Get(pokeAPIMapURL)
+	if ok {
+		locations, err := pokeapi.Decipher(val)
+		if err != nil {
+			return nil
+		}
+
+		for _, loc := range locations.Results {
+			fmt.Println(loc.Name)
+		}
+		return nil
+	}
+
+	data, err := pokeapi.Request(pokeAPIMapURL, &conf.PokeClient)
+	if err != nil {
+		return err
+	}
+	pokeCache.Add(pokeAPIMapURL, data)
+
+	response, err := pokeapi.Decipher(data)
 	if err != nil {
 		return err
 	}
@@ -104,7 +127,26 @@ func commandMapb(conf *config) error {
 		return nil
 	}
 
-	response, err := pokeapi.RequestAndResponse(pokeAPIMapURL, &conf.PokeClient)
+	pokeCache := conf.cache
+	val, ok := pokeCache.Get(pokeAPIMapURL)
+	if ok {
+		locations, err := pokeapi.Decipher(val)
+		if err != nil {
+			return nil
+		}
+
+		for _, loc := range locations.Results {
+			fmt.Println(loc.Name)
+		}
+		return nil
+	}
+
+	data, err := pokeapi.Request(pokeAPIMapURL, &conf.PokeClient)
+	if err != nil {
+		return err
+	}
+
+	response, err := pokeapi.Decipher(data)
 	if err != nil {
 		return err
 	}
@@ -147,5 +189,31 @@ func getCommands() map[string]cliCommands {
 			description: "Goes back to the previous page of locations",
 			callback:    commandMapb,
 		},
+		"cache": {
+			name:        "cache",
+			description: "Returns cache",
+			callback:    getCache,
+		},
 	}
+}
+
+func getCache(conf *config) error {
+
+	for _, value := range conf.cache.Cache {
+		response, err := pokeapi.Decipher(value.Val)
+		if err != nil {
+			return err
+		}
+		fmt.Println(response)
+	}
+
+	// locations := response.Results
+
+	// for _, loc := range locations {
+	// 	fmt.Println(loc.Name)
+	// }
+
+	// fmt.Println(conf.cache)
+	// return nil
+	return nil
 }

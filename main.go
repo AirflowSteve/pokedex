@@ -1,6 +1,11 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+	"time"
+
+	"github.com/AirflowSteve/pokedex/internal/pokecache"
+)
 
 func main() {
 	conf := &config{
@@ -8,6 +13,7 @@ func main() {
 		Previous:        "",
 		Next:            "https://pokeapi.co/api/v2/location-area/",
 		PokeClient:      http.Client{},
+		cache:           pokecache.NewCache(5 * time.Second),
 	}
 	startRepl(conf)
 }
