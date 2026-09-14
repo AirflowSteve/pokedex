@@ -2,26 +2,15 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/AirflowSteve/pokedex/internal/pokeapi"
 )
 
-type pokeAPIResponse struct {
-	Count       int            `json:"count"`
-	NextURL     string         `json:"next"`
-	PreviousURL string         `json:"previous"`
-	Results     []pokeLocation `json:"results"`
-}
-
 const defaultLocationsURL string = "https://pokeapi.co/api/v2/location-area/"
-
-type pokeLocation struct {
-	Name string `json:"name"`
-	URL  string `json:"url"`
-}
 
 type cliCommands struct {
 	name        string
@@ -33,6 +22,7 @@ type config struct {
 	CommandRegistry map[string]cliCommands
 	Previous        string
 	Next            string
+	PokeClient      http.Client
 }
 
 func startRepl(conf *config) {
@@ -85,24 +75,7 @@ func commandExit(conf *config) error {
 
 func commandMap(conf *config) error {
 	pokeAPIMapURL := conf.Next
-	req, err := http.NewRequest("GET", pokeAPIMapURL, nil)
-	if err != nil {
-		return err
-	}
-
-	client := &http.Client{}
-	res, err := client.Do(req)
-
-	// res, err := http.Get(pokeAPIMapURL)
-	if err != nil {
-		return nil
-	}
-	defer res.Body.Close()
-
-	var response pokeAPIResponse
-
-	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&response)
+	response, err := pokeapi.RequestAndResponse(pokeAPIMapURL, &conf.PokeClient)
 	if err != nil {
 		return err
 	}
@@ -116,7 +89,7 @@ func commandMap(conf *config) error {
 	}
 
 	locations := response.Results
-	// fmt.Println(locations)
+
 	for _, loc := range locations {
 		fmt.Println(loc.Name)
 	}
@@ -130,24 +103,8 @@ func commandMapb(conf *config) error {
 		fmt.Println("you're on the first page")
 		return nil
 	}
-	req, err := http.NewRequest("GET", pokeAPIMapURL, nil)
-	if err != nil {
-		return err
-	}
 
-	client := &http.Client{}
-	res, err := client.Do(req)
-
-	// res, err := http.Get(pokeAPIMapURL)
-	if err != nil {
-		return nil
-	}
-	defer res.Body.Close()
-
-	var response pokeAPIResponse
-
-	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&response)
+	response, err := pokeapi.RequestAndResponse(pokeAPIMapURL, &conf.PokeClient)
 	if err != nil {
 		return err
 	}
@@ -157,10 +114,10 @@ func commandMapb(conf *config) error {
 	} else {
 		conf.Previous = ""
 	}
-	conf.Next = response.NextURL
 
+	conf.Next = response.NextURL
 	locations := response.Results
-	// fmt.Println(locations)
+
 	for _, loc := range locations {
 		fmt.Println(loc.Name)
 	}
