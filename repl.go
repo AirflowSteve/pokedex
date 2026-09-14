@@ -2,25 +2,25 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
-	"net/http"
-	"encoding/json"
 )
 
 type pokeAPIResponse struct {
-	Count 		int				`json:"count"`
-	NextURL 	any				`json:"next"`
-	PreviousURL any				`json:"previous"`
-	Results 	[]pokeLocation 	`json:"results"`
-
+	Count       int            `json:"count"`
+	NextURL     string         `json:"next"`
+	PreviousURL string         `json:"previous"`
+	Results     []pokeLocation `json:"results"`
 }
 
-type pokeLocation struct {
-	Name 	string 		`json:"name"`
-	URL 	string 		`json:"url"`
+const defaultLocationsURL string = "https://pokeapi.co/api/v2/location-area/"
 
+type pokeLocation struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
 }
 
 type cliCommands struct {
@@ -31,6 +31,8 @@ type cliCommands struct {
 
 type config struct {
 	CommandRegistry map[string]cliCommands
+	Previous        string
+	Next            string
 }
 
 func startRepl(conf *config) {
@@ -82,9 +84,9 @@ func commandExit(conf *config) error {
 }
 
 func commandMap(conf *config) error {
-	pokeAPIMapURL := "https://pokeapi.co/api/v2/location-area/"
+	pokeAPIMapURL := conf.Next
 	req, err := http.NewRequest("GET", pokeAPIMapURL, nil)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
@@ -97,7 +99,50 @@ func commandMap(conf *config) error {
 	}
 	defer res.Body.Close()
 
-	
+	var response pokeAPIResponse
+
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&response)
+	if err != nil {
+		return err
+	}
+
+	if response.PreviousURL != "" {
+		conf.Previous = response.PreviousURL
+	}
+	conf.Next = response.NextURL
+	if conf.Next == "" {
+		conf.Next = defaultLocationsURL
+	}
+
+	locations := response.Results
+	// fmt.Println(locations)
+	for _, loc := range locations {
+		fmt.Println(loc.Name)
+	}
+
+	return nil
+}
+
+func commandMapb(conf *config) error {
+	pokeAPIMapURL := conf.Previous
+	if pokeAPIMapURL == "" {
+		fmt.Println("you're on the first page")
+		return nil
+	}
+	req, err := http.NewRequest("GET", pokeAPIMapURL, nil)
+	if err != nil {
+		return err
+	}
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+
+	// res, err := http.Get(pokeAPIMapURL)
+	if err != nil {
+		return nil
+	}
+	defer res.Body.Close()
 
 	var response pokeAPIResponse
 
@@ -106,6 +151,14 @@ func commandMap(conf *config) error {
 	if err != nil {
 		return err
 	}
+
+	if response.PreviousURL != "" {
+		conf.Previous = response.PreviousURL
+	} else {
+		conf.Previous = ""
+	}
+	conf.Next = response.NextURL
+
 	locations := response.Results
 	// fmt.Println(locations)
 	for _, loc := range locations {

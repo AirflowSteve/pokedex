@@ -14,11 +14,18 @@ func main() {
 				callback:    commandHelp,
 			},
 			"map": {
-				name: "map",
+				name:        "map",
 				description: "Shows a map of the pokemon world",
-				callback: commandMap,
+				callback:    commandMap,
+			},
+			"mapb": {
+				name:        "mapb",
+				description: "Goes back to the previous page of locations",
+				callback:    commandMapb,
 			},
 		},
+		Previous: "",
+		Next:     "https://pokeapi.co/api/v2/location-area/",
 	}
 	startRepl(&conf)
 }
