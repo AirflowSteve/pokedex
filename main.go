@@ -13,6 +13,11 @@ func main() {
 				description: "Displays a help message",
 				callback:    commandHelp,
 			},
+			"map": {
+				name: "map",
+				description: "Shows a map of the pokemon world",
+				callback: commandMap,
+			},
 		},
 	}
 	startRepl(&conf)
