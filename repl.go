@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/AirflowSteve/pokedex/internal/pokeapi"
 	"github.com/AirflowSteve/pokedex/internal/pokecache"
 )
 
@@ -145,23 +144,28 @@ func getCommands() map[string]cliCommands {
 			description: "Shows all the pokemons in the area",
 			callback:    commandExplore,
 		},
-		"cache": {
-			name:        "cache",
-			description: "Returns cache",
-			callback:    getCache,
-		},
+		// "cache": {
+		// 	name:        "cache",
+		// 	description: "Returns cache",
+		// 	callback:    getCache,
+		// },
+		// "explorecache": {
+		// 	name:        "explorecache",
+		// 	description: "Checks cached pokemons",
+		// 	callback:    commandExploreCache,
+		// },
 	}
 }
 
-func getCache(conf *config, parameters []string) error {
+// func getCache(conf *config, parameters []string) error {
 
-	for _, value := range conf.cache.Cache {
-		response, err := pokeapi.Decipher(value.Val)
-		if err != nil {
-			return err
-		}
-		fmt.Println(response)
-	}
+// 	for _, value := range conf.cache.Cache {
+// 		response, err := pokeapi.Decipher(value.Val)
+// 		if err != nil {
+// 			return err
+// 		}
+// 		fmt.Println(response)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }

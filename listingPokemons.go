@@ -30,3 +30,18 @@ func (conf *config) ListingPokemons(url string) (pokeapi.LocationInfo, error) {
 	return locationInfo, nil
 
 }
+
+// func (conf *config) ListingPokemonsCache(url string) (pokeapi.LocationInfo, error) {
+// 	data, ok := conf.cache.Get(url)
+// 	if ok {
+// 		locationInfo, err := pokeapi.DecipherLocationInfo(data)
+// 		if err != nil {
+// 			return pokeapi.LocationInfo{}, err
+// 		}
+// 		return locationInfo, nil
+
+// 	}
+
+// 	return pokeapi.LocationInfo{}, nil
+
+// }
