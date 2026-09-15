@@ -16,7 +16,7 @@ const defaultLocationsURL string = "https://pokeapi.co/api/v2/location-area/"
 type cliCommands struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, []string) error
 }
 
 type config struct {
@@ -25,6 +25,7 @@ type config struct {
 	Next            string
 	PokeClient      http.Client
 	cache           pokecache.Cache
+	Area            string
 }
 
 func startRepl(conf *config) {
@@ -45,7 +46,7 @@ func startRepl(conf *config) {
 			fmt.Println("Unknown command")
 			continue
 		} else {
-			err := command.callback(conf)
+			err := command.callback(conf, words[1:])
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -59,7 +60,7 @@ func cleanInput(text string) []string {
 	return words
 }
 
-func commandHelp(conf *config) error {
+func commandHelp(conf *config, parameters []string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	fmt.Println("")
@@ -69,13 +70,13 @@ func commandHelp(conf *config) error {
 	return nil
 }
 
-func commandExit(conf *config) error {
+func commandExit(conf *config, parameters []string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandMap(conf *config) error {
+func commandMap(conf *config, parameters []string) error {
 	pokeAPIMapURL := conf.Next
 
 	response, err := conf.listLocations(pokeAPIMapURL)
@@ -95,7 +96,7 @@ func commandMap(conf *config) error {
 	return nil
 }
 
-func commandMapb(conf *config) error {
+func commandMapb(conf *config, parameters []string) error {
 	pokeAPIMapURL := conf.Previous
 	if pokeAPIMapURL == "" {
 		fmt.Println("you're on the first page")
@@ -139,6 +140,11 @@ func getCommands() map[string]cliCommands {
 			description: "Goes back to the previous page of locations",
 			callback:    commandMapb,
 		},
+		"explore": {
+			name:        "explore",
+			description: "Shows all the pokemons in the area",
+			callback:    commandExplore,
+		},
 		"cache": {
 			name:        "cache",
 			description: "Returns cache",
@@ -147,7 +153,7 @@ func getCommands() map[string]cliCommands {
 	}
 }
 
-func getCache(conf *config) error {
+func getCache(conf *config, parameters []string) error {
 
 	for _, value := range conf.cache.Cache {
 		response, err := pokeapi.Decipher(value.Val)
