@@ -78,13 +78,21 @@ func commandExit(conf *config) error {
 func commandMap(conf *config) error {
 	pokeAPIMapURL := conf.Next
 
-	pokeCache := conf.cache
+	pokeCache := &conf.cache
+
 	val, ok := pokeCache.Get(pokeAPIMapURL)
 	if ok {
 		locations, err := pokeapi.Decipher(val)
 		if err != nil {
-			return nil
+			return err
 		}
+		if locations.PreviousURL != "" {
+			conf.Previous = locations.PreviousURL
+		} else {
+			conf.Previous = ""
+		}
+
+		conf.Next = locations.NextURL
 
 		for _, loc := range locations.Results {
 			fmt.Println(loc.Name)
@@ -92,10 +100,11 @@ func commandMap(conf *config) error {
 		return nil
 	}
 
-	data, err := pokeapi.Request(pokeAPIMapURL, &conf.PokeClient)
+	data, err := pokeapi.Request(pokeAPIMapURL, conf.PokeClient)
 	if err != nil {
 		return err
 	}
+
 	pokeCache.Add(pokeAPIMapURL, data)
 
 	response, err := pokeapi.Decipher(data)
@@ -129,11 +138,19 @@ func commandMapb(conf *config) error {
 
 	pokeCache := conf.cache
 	val, ok := pokeCache.Get(pokeAPIMapURL)
+
 	if ok {
 		locations, err := pokeapi.Decipher(val)
 		if err != nil {
-			return nil
+			return err
 		}
+		if locations.PreviousURL != "" {
+			conf.Previous = locations.PreviousURL
+		} else {
+			conf.Previous = ""
+		}
+
+		conf.Next = locations.NextURL
 
 		for _, loc := range locations.Results {
 			fmt.Println(loc.Name)
@@ -141,10 +158,12 @@ func commandMapb(conf *config) error {
 		return nil
 	}
 
-	data, err := pokeapi.Request(pokeAPIMapURL, &conf.PokeClient)
+	data, err := pokeapi.Request(pokeAPIMapURL, conf.PokeClient)
 	if err != nil {
 		return err
 	}
+
+	pokeCache.Add(pokeAPIMapURL, data)
 
 	response, err := pokeapi.Decipher(data)
 	if err != nil {
@@ -207,13 +226,5 @@ func getCache(conf *config) error {
 		fmt.Println(response)
 	}
 
-	// locations := response.Results
-
-	// for _, loc := range locations {
-	// 	fmt.Println(loc.Name)
-	// }
-
-	// fmt.Println(conf.cache)
-	// return nil
 	return nil
 }

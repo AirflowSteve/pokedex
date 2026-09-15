@@ -28,6 +28,9 @@ func (c *Cache) Add(key string, value []byte) {
 func (c *Cache) Get(key string) ([]byte, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	if key == "https://pokeapi.co/api/v2/location-area/?offset=0&limit=20" {
+		key = "https://pokeapi.co/api/v2/location-area/"
+	}
 
 	entry, ok := c.Cache[key]
 	if !ok {
@@ -39,13 +42,15 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 func (c *Cache) reapLoop(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	for range ticker.C {
 		timer := time.Now()
 		for entry, value := range c.Cache {
 			if timer.Sub(value.createdAt) > interval {
-				c.mu.Lock()
+
 				delete(c.Cache, entry)
-				c.mu.Unlock()
+
 			}
 		}
 	}

@@ -13,7 +13,7 @@ func main() {
 		Previous:        "",
 		Next:            "https://pokeapi.co/api/v2/location-area/",
 		PokeClient:      http.Client{},
-		cache:           pokecache.NewCache(5 * time.Second),
+		cache:           pokecache.NewCache(30 * time.Second),
 	}
 	startRepl(conf)
 }
