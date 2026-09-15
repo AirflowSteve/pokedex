@@ -7,7 +7,7 @@ import (
 )
 
 func Request(url string, client http.Client) ([]byte, error) {
-
+	// println("\n" + "Making a request" + "\n")
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err

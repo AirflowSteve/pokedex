@@ -41,11 +41,11 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 
 func (c *Cache) reapLoop(interval time.Duration) {
 	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	for range ticker.C {
 		timer := time.Now()
+
 		for entry, value := range c.Cache {
 			if timer.Sub(value.createdAt) > interval {
 

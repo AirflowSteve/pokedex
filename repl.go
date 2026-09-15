@@ -78,47 +78,13 @@ func commandExit(conf *config) error {
 func commandMap(conf *config) error {
 	pokeAPIMapURL := conf.Next
 
-	pokeCache := &conf.cache
-
-	val, ok := pokeCache.Get(pokeAPIMapURL)
-	if ok {
-		locations, err := pokeapi.Decipher(val)
-		if err != nil {
-			return err
-		}
-		if locations.PreviousURL != "" {
-			conf.Previous = locations.PreviousURL
-		} else {
-			conf.Previous = ""
-		}
-
-		conf.Next = locations.NextURL
-
-		for _, loc := range locations.Results {
-			fmt.Println(loc.Name)
-		}
-		return nil
-	}
-
-	data, err := pokeapi.Request(pokeAPIMapURL, conf.PokeClient)
+	response, err := conf.listLocations(pokeAPIMapURL)
 	if err != nil {
 		return err
 	}
 
-	pokeCache.Add(pokeAPIMapURL, data)
-
-	response, err := pokeapi.Decipher(data)
-	if err != nil {
-		return err
-	}
-
-	if response.PreviousURL != "" {
-		conf.Previous = response.PreviousURL
-	}
+	conf.Previous = response.PreviousURL
 	conf.Next = response.NextURL
-	if conf.Next == "" {
-		conf.Next = defaultLocationsURL
-	}
 
 	locations := response.Results
 
@@ -135,54 +101,19 @@ func commandMapb(conf *config) error {
 		fmt.Println("you're on the first page")
 		return nil
 	}
-
-	pokeCache := conf.cache
-	val, ok := pokeCache.Get(pokeAPIMapURL)
-
-	if ok {
-		locations, err := pokeapi.Decipher(val)
-		if err != nil {
-			return err
-		}
-		if locations.PreviousURL != "" {
-			conf.Previous = locations.PreviousURL
-		} else {
-			conf.Previous = ""
-		}
-
-		conf.Next = locations.NextURL
-
-		for _, loc := range locations.Results {
-			fmt.Println(loc.Name)
-		}
-		return nil
-	}
-
-	data, err := pokeapi.Request(pokeAPIMapURL, conf.PokeClient)
+	response, err := conf.listLocations(pokeAPIMapURL)
 	if err != nil {
 		return err
 	}
 
-	pokeCache.Add(pokeAPIMapURL, data)
-
-	response, err := pokeapi.Decipher(data)
-	if err != nil {
-		return err
-	}
-
-	if response.PreviousURL != "" {
-		conf.Previous = response.PreviousURL
-	} else {
-		conf.Previous = ""
-	}
-
+	conf.Previous = response.PreviousURL
 	conf.Next = response.NextURL
+
 	locations := response.Results
 
 	for _, loc := range locations {
 		fmt.Println(loc.Name)
 	}
-
 	return nil
 }
 
