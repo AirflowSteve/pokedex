@@ -45,9 +45,8 @@ func commandExplore(conf *config, parameters []string) error {
 		})
 		fmt.Printf(" - %v\n", pokemonToMeet.Pokemon.Name)
 
-		fmt.Println()
-
 	}
+	fmt.Println()
 	return nil
 }
 
