@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strings"
+
+	"github.com/AirflowSteve/pokedex/internal/pokeapi"
 )
 
 func commandExplore(conf *config, parameters []string) error {
@@ -12,23 +14,41 @@ func commandExplore(conf *config, parameters []string) error {
 		return nil
 	}
 
-	for i := 0; i < len(parameters); i++ {
-		URLtoLookUp := baseURL + strings.ToLower(parameters[i])
+	URLtoLookUp := baseURL + strings.ToLower(parameters[0])
 
-		locationInfo, err := conf.ListingPokemons(URLtoLookUp)
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("Exploring %s...\n", locationInfo.Name)
-		fmt.Println("Found Pokemon:")
-		for _, pokemonToMeet := range locationInfo.PokemonEncounters {
-			fmt.Printf(" - %v\n", pokemonToMeet.Pokemon.Name)
-		}
-		println()
+	locationInfo, err := conf.ListingPokemons(URLtoLookUp)
+	if err != nil {
+		return err
 	}
 
+	conf.Area.Name = locationInfo.Location.Name
+	conf.Area.URL = locationInfo.Location.URL
+	conf.Area.PokemonsInTheArea = printOutPokemons(conf, locationInfo)
+
+	fmt.Printf("Exploring %s...\n", locationInfo.Name)
+	fmt.Println("Found Pokemon:")
+
+	println()
+
 	return nil
+}
+
+func printOutPokemons(conf *config, locationInfo pokeapi.LocationInfo) []struct {
+	Name string
+	URL  string
+} {
+	for _, pokemonToMeet := range locationInfo.PokemonEncounters {
+		conf.Area.PokemonsInTheArea = append(conf.Area.PokemonsInTheArea, struct {
+			Name string
+			URL  string
+		}{
+			Name: pokemonToMeet.Pokemon.Name,
+			URL:  pokemonToMeet.Pokemon.URL,
+		})
+		fmt.Printf(" - %v\n", pokemonToMeet.Pokemon.Name)
+		return conf.Area.PokemonsInTheArea
+	}
+	return conf.Area.PokemonsInTheArea
 }
 
 // func commandExploreCache(conf *config, parameters []string) error {

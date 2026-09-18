@@ -26,8 +26,16 @@ type config struct {
 	Next            string
 	PokeClient      http.Client
 	cache           pokecache.Cache
-	Area            string
-	Pokedex         map[string]pokeapi.PokemonDesc
+	Area            struct {
+		Name              string
+		URL               string
+		PokemonsInTheArea []struct {
+			Name string
+			URL  string
+		}
+	}
+
+	Pokedex map[string]pokeapi.PokemonDesc
 }
 
 func startRepl(conf *config) {
