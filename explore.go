@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"strings"
-
-	"github.com/AirflowSteve/pokedex/internal/pokeapi"
 )
 
 func commandExplore(conf *config, parameters []string) error {
@@ -37,15 +35,6 @@ func commandExplore(conf *config, parameters []string) error {
 	fmt.Println()
 	fmt.Println("Found Pokemon:")
 
-	conf.Area.PokemonsInTheArea = printOutPokemons(conf, locationInfo)
-	fmt.Println()
-	return nil
-}
-
-func printOutPokemons(conf *config, locationInfo pokeapi.LocationInfo) []struct {
-	Name string
-	URL  string
-} {
 	for _, pokemonToMeet := range locationInfo.PokemonEncounters {
 		conf.Area.PokemonsInTheArea = append(conf.Area.PokemonsInTheArea, struct {
 			Name string
@@ -55,8 +44,11 @@ func printOutPokemons(conf *config, locationInfo pokeapi.LocationInfo) []struct 
 			URL:  pokemonToMeet.Pokemon.URL,
 		})
 		fmt.Printf(" - %v\n", pokemonToMeet.Pokemon.Name)
+
+		fmt.Println()
+
 	}
-	return conf.Area.PokemonsInTheArea
+	return nil
 }
 
 // func commandExploreCache(conf *config, parameters []string) error {
