@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 func commandExplore(conf *config, parameters []string) error {
@@ -12,7 +13,7 @@ func commandExplore(conf *config, parameters []string) error {
 	}
 
 	for i := 0; i < len(parameters); i++ {
-		URLtoLookUp := baseURL + parameters[i]
+		URLtoLookUp := baseURL + strings.ToLower(parameters[i])
 
 		locationInfo, err := conf.ListingPokemons(URLtoLookUp)
 		if err != nil {

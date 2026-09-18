@@ -46,3 +46,13 @@ func DecipherLocationInfo(data []byte) (LocationInfo, error) {
 	}
 	return response, nil
 }
+
+func DecipherPokemonInfo(data []byte) (PokemonDesc, error) {
+	var response PokemonDesc
+
+	err := json.Unmarshal(data, &response)
+	if err != nil {
+		return PokemonDesc{}, err
+	}
+	return response, nil
+}

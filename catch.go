@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
+	"strings"
 )
 
 func commandCatch(conf *config, parameters []string) error {
@@ -10,7 +12,29 @@ func commandCatch(conf *config, parameters []string) error {
 		return nil
 	}
 
-	pokeTarget := parameters[0]
-	fmt.Printf("Throwing a pokeball at %s...\n", pokeTarget)
+	pokeTarget := strings.ToLower(parameters[0])
+	PokemonURL := defaultPokeURL + "/pokemon/" + pokeTarget
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokeTarget)
+
+	PokemonInfo, err := getPokemonInfo(conf, PokemonURL)
+	if err != nil {
+		return err
+	}
+
+	baseLevel := PokemonInfo.BaseExperience
+	if baseLevel == 0 {
+		// fmt.Println("I don't know such a Pokemon")
+		return fmt.Errorf("Unknown Pokemon '%v'", pokeTarget)
+	}
+	res := rand.Intn(baseLevel)
+
+	if res > 40 {
+		fmt.Printf("%s escaped!\n", pokeTarget)
+
+		return nil
+	}
+	fmt.Printf("%s was caught!\n", pokeTarget)
+	conf.Pokedex[PokemonInfo.Name] = PokemonInfo
+
 	return nil
 }

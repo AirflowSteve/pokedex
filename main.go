@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/AirflowSteve/pokedex/internal/pokeapi"
 	"github.com/AirflowSteve/pokedex/internal/pokecache"
 )
 
@@ -15,6 +16,7 @@ func main() {
 		PokeClient:      http.Client{},
 		cache:           pokecache.NewCache(5 * time.Second),
 		Area:            "",
+		Pokedex:         make(map[string]pokeapi.PokemonDesc),
 	}
 	startRepl(conf)
 }

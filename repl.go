@@ -7,10 +7,12 @@ import (
 	"os"
 	"strings"
 
+	"github.com/AirflowSteve/pokedex/internal/pokeapi"
 	"github.com/AirflowSteve/pokedex/internal/pokecache"
 )
 
 const defaultLocationsURL string = "https://pokeapi.co/api/v2/location-area/"
+const defaultPokeURL string = "https://pokeapi.co/api/v2/"
 
 type cliCommands struct {
 	name        string
@@ -25,6 +27,7 @@ type config struct {
 	PokeClient      http.Client
 	cache           pokecache.Cache
 	Area            string
+	Pokedex         map[string]pokeapi.PokemonDesc
 }
 
 func startRepl(conf *config) {
@@ -148,6 +151,11 @@ func getCommands() map[string]cliCommands {
 			name:        "catch",
 			description: "Tries to catch a pokemon",
 			callback:    commandCatch,
+		},
+		"inspect": {
+			name:        "inspect",
+			description: "Allows you to see the pokemon's stats",
+			callback:    commandInspect,
 		},
 		// "cache": {
 		// 	name:        "cache",
