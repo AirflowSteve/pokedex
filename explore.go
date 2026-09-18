@@ -55,7 +55,6 @@ func printOutPokemons(conf *config, locationInfo pokeapi.LocationInfo) []struct 
 			URL:  pokemonToMeet.Pokemon.URL,
 		})
 		fmt.Printf(" - %v\n", pokemonToMeet.Pokemon.Name)
-		return conf.Area.PokemonsInTheArea
 	}
 	return conf.Area.PokemonsInTheArea
 }
