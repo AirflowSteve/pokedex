@@ -8,6 +8,15 @@ import (
 )
 
 func commandExplore(conf *config, parameters []string) error {
+
+	conf.Area = struct {
+		Name              string
+		URL               string
+		PokemonsInTheArea []struct {
+			Name string
+			URL  string
+		}
+	}{}
 	baseURL := defaultLocationsURL
 	if len(parameters) < 1 {
 		fmt.Println(">No areas listed")
@@ -23,13 +32,13 @@ func commandExplore(conf *config, parameters []string) error {
 
 	conf.Area.Name = locationInfo.Location.Name
 	conf.Area.URL = locationInfo.Location.URL
-	conf.Area.PokemonsInTheArea = printOutPokemons(conf, locationInfo)
 
 	fmt.Printf("Exploring %s...\n", locationInfo.Name)
+	fmt.Println()
 	fmt.Println("Found Pokemon:")
 
-	println()
-
+	conf.Area.PokemonsInTheArea = printOutPokemons(conf, locationInfo)
+	fmt.Println()
 	return nil
 }
 

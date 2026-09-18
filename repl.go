@@ -53,10 +53,14 @@ func startRepl(conf *config) {
 
 		command, ok := conf.CommandRegistry[commandName]
 		if !ok {
+
 			fmt.Println("Unknown command")
+
 			continue
 		} else {
+
 			err := command.callback(conf, words[1:])
+
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -81,12 +85,21 @@ func commandHelp(conf *config, parameters []string) error {
 }
 
 func commandExit(conf *config, parameters []string) error {
+	fmt.Println()
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
 func commandMap(conf *config, parameters []string) error {
+	conf.Area = struct {
+		Name              string
+		URL               string
+		PokemonsInTheArea []struct {
+			Name string
+			URL  string
+		}
+	}{}
 	pokeAPIMapURL := conf.Next
 
 	response, err := conf.listLocations(pokeAPIMapURL)
@@ -98,18 +111,29 @@ func commandMap(conf *config, parameters []string) error {
 	conf.Next = response.NextURL
 
 	locations := response.Results
-
+	fmt.Println()
 	for _, loc := range locations {
-		fmt.Println(loc.Name)
+		fmt.Printf(" - %s\n", loc.Name)
 	}
+	fmt.Println()
 
 	return nil
 }
 
 func commandMapb(conf *config, parameters []string) error {
+	conf.Area = struct {
+		Name              string
+		URL               string
+		PokemonsInTheArea []struct {
+			Name string
+			URL  string
+		}
+	}{}
 	pokeAPIMapURL := conf.Previous
 	if pokeAPIMapURL == "" {
+		fmt.Println()
 		fmt.Println("you're on the first page")
+		fmt.Println()
 		return nil
 	}
 	response, err := conf.listLocations(pokeAPIMapURL)
@@ -122,9 +146,11 @@ func commandMapb(conf *config, parameters []string) error {
 
 	locations := response.Results
 
+	fmt.Println()
 	for _, loc := range locations {
-		fmt.Println(loc.Name)
+		fmt.Printf(" - %s\n", loc.Name)
 	}
+	fmt.Println()
 	return nil
 }
 

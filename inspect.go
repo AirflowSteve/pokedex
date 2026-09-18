@@ -12,7 +12,7 @@ func commandInspect(conf *config, args []string) error {
 		fmt.Println("you have not caught that pokemon")
 		return nil
 	}
-
+	fmt.Println()
 	fmt.Printf("Name: %s\nHeight: %d\nWeight: %d\nStats:\n", pokemon.Name, pokemon.Height, pokemon.Weight)
 	for _, PokeStat := range pokemon.Stats {
 		fmt.Printf("  -%s: %d\n", PokeStat.Stat.Name, PokeStat.BaseStat)
@@ -21,5 +21,6 @@ func commandInspect(conf *config, args []string) error {
 	for _, PokeType := range pokemon.Types {
 		fmt.Printf("  - %s\n", PokeType.Type.Name)
 	}
+	fmt.Println()
 	return nil
 }
