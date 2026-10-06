@@ -54,6 +54,10 @@ func commandCatch(conf *config, parameters []string) error {
 	}
 	fmt.Printf("%s was caught!\n", pokeTarget)
 	conf.Pokedex[PokemonInfo.Name] = PokemonInfo
+	err = saveFunction(conf)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

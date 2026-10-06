@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -17,5 +18,12 @@ func main() {
 		cache:           pokecache.NewCache(5 * time.Second),
 		Pokedex:         make(map[string]pokeapi.PokemonDesc),
 	}
+	err := loadFunction(conf)
+	if err != nil {
+		fmt.Println("couldn't load your save")
+		fmt.Println(err)
+		conf.Pokedex = make(map[string]pokeapi.PokemonDesc)
+	}
+
 	startRepl(conf)
 }
